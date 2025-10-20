@@ -10,8 +10,8 @@ import (
 )
 
 type periodVars struct {
-	periodStart string `path:"periodStart"`
-	periodEnd   string `path:"periodEnd"`
+	PeriodStart string `path:"periodStart"`
+	PeriodEnd   string `path:"periodEnd"`
 }
 
 func CreateBasicReport(s *analytics.Service) gorouter.Handler {
@@ -21,12 +21,12 @@ func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 			return fmt.Errorf("failed to read period: %w", err)
 		}
 
-		periodStart, err := time.Parse(time.DateOnly, vars.periodStart)
+		periodStart, err := time.Parse(time.DateOnly, vars.PeriodStart)
 		if err != nil {
 			return fmt.Errorf("failed to parse periodStart: %w", err)
 		}
 
-		periodEnd, err := time.Parse(time.DateOnly, vars.periodEnd)
+		periodEnd, err := time.Parse(time.DateOnly, vars.PeriodEnd)
 		if err != nil {
 			return fmt.Errorf("failed to parse periodEnd: %w", err)
 		}
