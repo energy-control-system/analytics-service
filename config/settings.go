@@ -11,6 +11,7 @@ type Settings struct {
 }
 
 type Databases struct {
+	Postgres   string `json:"postgres"`
 	Clickhouse string `json:"clickhouse"`
 	Kafka      Kafka  `json:"kafka"`
 }

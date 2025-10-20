@@ -97,5 +97,5 @@ func (s *Service) dailyReportTask(ctx context.Context, log golog.Logger) {
 		return
 	}
 
-	log.Debugf("created daily report %q at %v", report.File.FileName, report.CreatedAt)
+	log.Debugf("created daily report %q at %v", report.Files[0].FileName, report.CreatedAt)
 }

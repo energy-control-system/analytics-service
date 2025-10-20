@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"analytics-service/cluster/file"
 	"analytics-service/cluster/inspection"
 	"analytics-service/cluster/task"
 	"analytics-service/config"
@@ -138,9 +139,8 @@ func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodS
 	}
 
 	report := Report{
-		ID:          0,
 		Type:        ReportTypeBasic,
-		File:        uploadedFile,
+		Files:       []file.File{uploadedFile},
 		PeriodStart: periodStart,
 		PeriodEnd:   periodEnd,
 	}
@@ -167,6 +167,34 @@ func (s *Service) GetAllReports(ctx goctx.Context) ([]Report, error) {
 	reports, err := s.repository.GetAllReports(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get all reports from db: %w", err)
+	}
+
+	fileIDs := make([]int, 0, len(reports))
+	for _, report := range reports {
+		for _, f := range report.Files {
+			fileIDs = append(fileIDs, f.ID)
+		}
+	}
+
+	files, err := s.fileService.GetFilesByIDs(ctx, fileIDs)
+	if err != nil {
+		return nil, fmt.Errorf("get files by ids: %w", err)
+	}
+
+	filesMap := make(map[int]file.File, len(files))
+	for _, f := range files {
+		filesMap[f.ID] = f
+	}
+
+	for i, report := range reports {
+		for j, reportFile := range report.Files {
+			f, ok := filesMap[reportFile.ID]
+			if !ok {
+				return nil, fmt.Errorf("report %d file %d not found", report.ID, reportFile.ID)
+			}
+
+			reports[i].Files[j] = f
+		}
 	}
 
 	return reports, nil

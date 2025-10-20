@@ -7,6 +7,7 @@ import (
 
 	"github.com/shopspring/decimal"
 	"github.com/sunshineOfficial/golib/golog"
+	"github.com/sunshineOfficial/golib/goos"
 )
 
 func main() {
@@ -26,11 +27,23 @@ func main() {
 
 	app := NewApp(mainCtx, log, settings)
 
-	if err = app.InitDatabases(os.DirFS("./"), "database/migrations/clickhouse"); err != nil {
+	if err = app.InitDatabases(os.DirFS("./"), "database/migrations"); err != nil {
 		log.Errorf("failed to init databases: %v", err)
 		return
 	}
 
+	if err = app.InitServices(); err != nil {
+		log.Errorf("failed to init services: %v", err)
+		return
+	}
+
+	app.InitServer()
+
+	if err = app.Start(); err != nil {
+		log.Errorf("failed to start app: %v", err)
+	}
+
+	goos.WaitTerminate(mainCtx, app.Stop)
 	log.Debug("service down")
 }
 

@@ -1,6 +1,7 @@
 {
   "port": 80,
   "databases": {
+    "postgres": "postgres://postgres:%s@localhost:5432/analytics_service?sslmode=disable",
     "clickhouse": "clickhouse://%s:%s@localhost:9123/analytics_service",
     "kafka": {
       "brokers": [

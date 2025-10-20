@@ -88,39 +88,5 @@ create table if not exists finished_tasks
         ttl finished_at + interval 2 year delete
         settings index_granularity = 8192, merge_with_ttl_timeout = 86400;
 
-create table if not exists reports
-(
-    id           Int64,
-    type         Enum8(
-        'unknown' = 0,
-        'basic' = 1
-        ),
-
-    -- File nested fields
-    file_id      Int64,
-    file_name    String,
-    file_size    Int64,
-    file_bucket  Enum8(
-        'images' = 1,
-        'documents' = 2
-        ),
-    file_url     String,
-
-    period_start DateTime('UTC'),
-    period_end   DateTime('UTC'),
-    created_at   DateTime('UTC')
-)
-    engine = MergeTree()
-        order by (id, created_at)
-        partition by toYYYYMM(created_at)
-        ttl created_at + interval 2 year delete
-        settings index_granularity = 8192, merge_with_ttl_timeout = 86400;
-
-alter table reports
-    add index idx_report_type type type set(0) granularity 4;
-alter table reports
-    add index idx_period_start period_start type minmax granularity 4;
-
 -- +goose Down
-drop table if exists reports;
 drop table if exists finished_tasks;

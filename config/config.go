@@ -22,6 +22,7 @@ func Get(log golog.Logger) (Settings, error) {
 		return Settings{}, err
 	}
 
+	settings.Databases.Postgres = fmt.Sprintf(settings.Databases.Postgres, os.Getenv("POSTGRES_PASSWORD"))
 	settings.Databases.Clickhouse = fmt.Sprintf(settings.Databases.Clickhouse, os.Getenv("CLICKHOUSE_USER"), os.Getenv("CLICKHOUSE_PASSWORD"))
 
 	return settings, nil

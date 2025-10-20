@@ -15,12 +15,12 @@ const (
 )
 
 type Report struct {
-	ID          int        `json:"ID"`
-	Type        ReportType `json:"Type"`
-	File        file.File  `json:"File"`
-	PeriodStart time.Time  `json:"PeriodStart"`
-	PeriodEnd   time.Time  `json:"PeriodEnd"`
-	CreatedAt   time.Time  `json:"CreatedAt"`
+	ID          int         `json:"ID"`
+	Type        ReportType  `json:"Type"`
+	Files       []file.File `json:"Files"`
+	PeriodStart time.Time   `json:"PeriodStart"`
+	PeriodEnd   time.Time   `json:"PeriodEnd"`
+	CreatedAt   time.Time   `json:"CreatedAt"`
 }
 
 type FinishedTask struct {

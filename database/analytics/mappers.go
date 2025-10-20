@@ -154,11 +154,6 @@ func MapReportToDB(r analytics.Report) Report {
 	return Report{
 		ID:          r.ID,
 		Type:        int(r.Type),
-		FileID:      r.File.ID,
-		FileName:    r.File.FileName,
-		FileSize:    r.File.FileSize,
-		FileBucket:  string(r.File.Bucket),
-		FileURL:     r.File.URL,
 		PeriodStart: r.PeriodStart,
 		PeriodEnd:   r.PeriodEnd,
 		CreatedAt:   r.CreatedAt,
@@ -167,25 +162,40 @@ func MapReportToDB(r analytics.Report) Report {
 
 func MapReportFromDB(r Report) analytics.Report {
 	return analytics.Report{
-		ID:   r.ID,
-		Type: analytics.ReportType(r.Type),
-		File: file.File{
-			ID:       r.FileID,
-			FileName: r.FileName,
-			FileSize: r.FileSize,
-			Bucket:   file.Bucket(r.FileBucket),
-			URL:      r.FileURL,
-		},
+		ID:          r.ID,
+		Type:        analytics.ReportType(r.Type),
 		PeriodStart: r.PeriodStart,
 		PeriodEnd:   r.PeriodEnd,
 		CreatedAt:   r.CreatedAt,
 	}
 }
 
-func MapReportSliceFromDB(reports []Report) []analytics.Report {
-	result := make([]analytics.Report, 0, len(reports))
-	for _, r := range reports {
-		result = append(result, MapReportFromDB(r))
+func MapAttachmentToDB(f file.File, reportID int) Attachment {
+	return Attachment{
+		ReportID: reportID,
+		FileID:   f.ID,
+	}
+}
+
+func MapAttachmentSliceToDB(files []file.File, reportID int) []Attachment {
+	result := make([]Attachment, 0, len(files))
+	for _, f := range files {
+		result = append(result, MapAttachmentToDB(f, reportID))
+	}
+
+	return result
+}
+
+func MapAttachmentFromDB(a Attachment) file.File {
+	return file.File{
+		ID: a.FileID,
+	}
+}
+
+func MapAttachmentSliceFromDB(attachments []Attachment) []file.File {
+	result := make([]file.File, 0, len(attachments))
+	for _, a := range attachments {
+		result = append(result, MapAttachmentFromDB(a))
 	}
 
 	return result

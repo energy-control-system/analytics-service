@@ -5,14 +5,16 @@ import "time"
 type Report struct {
 	ID          int       `db:"id"`
 	Type        int       `db:"type"`
-	FileID      int       `db:"file_id"`
-	FileName    string    `db:"file_name"`
-	FileSize    int64     `db:"file_size"`
-	FileBucket  string    `db:"file_bucket"`
-	FileURL     string    `db:"file_url"`
 	PeriodStart time.Time `db:"period_start"`
 	PeriodEnd   time.Time `db:"period_end"`
 	CreatedAt   time.Time `db:"created_at"`
+}
+
+type Attachment struct {
+	ID        int       `db:"id"`
+	ReportID  int       `db:"report_id"`
+	FileID    int       `db:"file_id"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 type FinishedTask struct {

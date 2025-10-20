@@ -1,2 +1,3 @@
-insert into reports (id, type, file_id, file_name, file_size, file_bucket, file_url, period_start, period_end, created_at)
-values (:id, :type, :file_id, :file_name, :file_size, :file_bucket, :file_url, :period_start, :period_end, :created_at);
+insert into reports (type, period_start, period_end)
+values (:type, :period_start, :period_end)
+returning id, type, period_start, period_end, created_at;

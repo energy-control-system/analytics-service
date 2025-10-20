@@ -70,3 +70,22 @@ func (c *Client) Upload(ctx goctx.Context, fileName string, file io.Reader) (Fil
 
 	return response, nil
 }
+
+func (c *Client) GetFilesByIDs(ctx goctx.Context, ids []int) ([]File, error) {
+	url, err := gohttp.AddIntQuery(c.baseURL+"/files", "id", ids...)
+	if err != nil {
+		return nil, fmt.Errorf("AddIntQuery: %w", err)
+	}
+
+	var response []File
+	status, err := c.client.DoJson(ctx, http.MethodGet, url, nil, &response)
+	if err != nil {
+		return nil, fmt.Errorf("c.client.DoJson: %w", err)
+	}
+
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", status)
+	}
+
+	return response, nil
+}
