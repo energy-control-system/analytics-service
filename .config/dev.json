@@ -1,0 +1,27 @@
+{
+  "port": 80,
+  "databases": {
+    "clickhouse": "clickhouse://%s:%s@clickhouse:9123/analytics_service",
+    "kafka": {
+      "brokers": [
+        "kafka:9093"
+      ],
+      "topics": {
+        "tasks": "tasks-topic"
+      }
+    }
+  },
+  "cluster": {
+    "brigadeService": "http://brigade-service",
+    "fileService": "http://file-service",
+    "inspectionService": "http://inspection-service",
+    "subscriberService": "http://subscriber-service"
+  },
+  "templates": {
+    "basicReport": "./service/analytics/templates/basic_report.xlsx"
+  },
+  "cron": {
+    "dailyReportTime": "18:00",
+    "taskTimeout": "2m"
+  }
+}
