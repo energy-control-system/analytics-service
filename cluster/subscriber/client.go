@@ -36,7 +36,7 @@ func (c *Client) GetObjectExtendedByID(ctx goctx.Context, id int) (ObjectExtende
 			PhoneNumber:   "89234567856",
 			Email:         "test@gmail.com",
 			INN:           "1234567890",
-			BirthDate:     "01.09.2004",
+			BirthDate:     time.Date(2004, 9, 1, 0, 0, 0, 0, time.UTC),
 			Status:        StatusActive,
 			CreatedAt:     time.Date(2025, 10, 10, 9, 13, 14, 0, time.UTC),
 			UpdatedAt:     time.Date(2025, 10, 10, 9, 16, 31, 0, time.UTC),

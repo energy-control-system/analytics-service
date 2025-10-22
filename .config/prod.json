@@ -2,7 +2,14 @@
   "port": 80,
   "databases": {
     "postgres": "postgres://postgres:%s@postgres:5432/analytics_service?sslmode=disable",
-    "clickhouse": "clickhouse://%s:%s@clickhouse:9123/analytics_service",
+    "clickhouse": {
+      "connectionString": "clickhouse://%s:%s@%s:%d/%s",
+      "host": "clickhouse",
+      "port": 9123,
+      "database": "analytics_service",
+      "username": "",
+      "password": ""
+    },
     "kafka": {
       "brokers": [
         "kafka:9093"

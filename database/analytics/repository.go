@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -33,10 +34,11 @@ var (
 )
 
 type Repository struct {
-	postgres, clickhouse *sqlx.DB
+	postgres   *sqlx.DB
+	clickhouse driver.Conn
 }
 
-func NewRepository(postgres, clickhouse *sqlx.DB) *Repository {
+func NewRepository(postgres *sqlx.DB, clickhouse driver.Conn) *Repository {
 	return &Repository{
 		postgres:   postgres,
 		clickhouse: clickhouse,
@@ -44,27 +46,42 @@ func NewRepository(postgres, clickhouse *sqlx.DB) *Repository {
 }
 
 func (r *Repository) AddFinishedTask(ctx context.Context, t analytics.FinishedTask) error {
-	_, err := r.clickhouse.NamedExecContext(ctx, addFinishedTaskSQL, MapFinishedTaskToDB(t))
+	dbTask := MapFinishedTaskToDB(t)
+
+	batch, err := r.clickhouse.PrepareBatch(ctx, addFinishedTaskSQL)
 	if err != nil {
-		return fmt.Errorf("r.clickhouse.NamedExecContext: %w", err)
+		return fmt.Errorf("r.clickhouse.PrepareBatch: %w", err)
+	}
+	defer func() {
+		err = errors.Join(err, batch.Close())
+	}()
+
+	err = batch.AppendStruct(&dbTask)
+	if err != nil {
+		err = fmt.Errorf("batch.AppendStruct: %w", err)
+		return err
 	}
 
-	return nil
+	err = batch.Send()
+	if err != nil {
+		err = fmt.Errorf("batch.Send: %w", err)
+		return err
+	}
+
+	return err
 }
 
 func (r *Repository) GetFinishedTasksByPeriod(ctx context.Context, periodStart, periodEnd time.Time) ([]analytics.FinishedTask, error) {
 	var tasks []FinishedTask
-	err := r.clickhouse.SelectContext(ctx, &tasks, getFinishedTasksByPeriodSQL, periodStart, periodEnd)
+	err := r.clickhouse.Select(ctx, &tasks, getFinishedTasksByPeriodSQL, periodStart, periodEnd)
 	if err != nil {
-		return nil, fmt.Errorf("r.clickhouse.SelectContext: %w", err)
+		return nil, fmt.Errorf("r.clickhouse.Select: %w", err)
 	}
 
 	return MapFinishedTaskSliceFromDB(tasks), nil
 }
 
 func (r *Repository) AddReport(ctx context.Context, report analytics.Report) (analytics.Report, error) {
-	var err error
-
 	tx, err := r.postgres.BeginTxx(ctx, nil)
 	if err != nil {
 		return analytics.Report{}, fmt.Errorf("r.postgres.BeginTxx: %w", err)
@@ -80,9 +97,6 @@ func (r *Repository) AddReport(ctx context.Context, report analytics.Report) (an
 		err = fmt.Errorf("tx.NamedQuery: %w", err)
 		return analytics.Report{}, err
 	}
-	defer func() {
-		err = errors.Join(err, rows.Close())
-	}()
 
 	if !rows.Next() {
 		err = errors.New("rows.Next == false")
@@ -92,6 +106,11 @@ func (r *Repository) AddReport(ctx context.Context, report analytics.Report) (an
 	var dbReport Report
 	if err = rows.StructScan(&dbReport); err != nil {
 		err = fmt.Errorf("rows.StructScan: %w", err)
+		return analytics.Report{}, err
+	}
+
+	if err = rows.Close(); err != nil {
+		err = fmt.Errorf("rows.Close: %w", err)
 		return analytics.Report{}, err
 	}
 

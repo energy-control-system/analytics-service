@@ -85,6 +85,6 @@ type Subscriber struct {
 	PhoneNumber   string            `json:"PhoneNumber"`
 	Email         string            `json:"Email"`
 	INN           string            `json:"INN"`
-	BirthDate     string            `json:"BirthDate"`
+	BirthDate     time.Time         `json:"BirthDate"`
 	Status        subscriber.Status `json:"Status"`
 }

@@ -11,9 +11,18 @@ type Settings struct {
 }
 
 type Databases struct {
-	Postgres   string `json:"postgres"`
-	Clickhouse string `json:"clickhouse"`
-	Kafka      Kafka  `json:"kafka"`
+	Postgres   string     `json:"postgres"`
+	Clickhouse Clickhouse `json:"clickhouse"`
+	Kafka      Kafka      `json:"kafka"`
+}
+
+type Clickhouse struct {
+	ConnectionString string `json:"connectionString"`
+	Host             string `json:"host"`
+	Port             int    `json:"port"`
+	Database         string `json:"database"`
+	Username         string `json:"username"`
+	Password         string `json:"password"`
 }
 
 type Kafka struct {

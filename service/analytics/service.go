@@ -131,7 +131,7 @@ func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodS
 		return Report{}, fmt.Errorf("write file to buffer: %w", err)
 	}
 
-	fileName := fmt.Sprintf("Отчет за %s-%s", periodStart.Format(gotime.DateOnlyNet), periodEnd.Format(gotime.DateOnlyNet))
+	fileName := fmt.Sprintf("Отчет за %s-%s.xlsx", periodStart.Format(gotime.DateOnlyNet), periodEnd.Format(gotime.DateOnlyNet))
 
 	uploadedFile, err := s.fileService.Upload(ctx, fileName, buf)
 	if err != nil {

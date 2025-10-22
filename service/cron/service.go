@@ -86,6 +86,8 @@ func (s *Service) Stop() error {
 }
 
 func (s *Service) dailyReportTask(ctx context.Context, log golog.Logger) {
+	log.Debugf("start daily report task at %s", time.Now())
+
 	wrappedCtx, cancel := goctx.Wrap(ctx).WithTimeout(time.Duration(s.settings.TaskTimeout))
 	defer cancel()
 

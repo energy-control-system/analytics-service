@@ -4,12 +4,12 @@ select task_id,
        started_at,
        finished_at,
        inspection_id,
-       inspection_type,
-       inspection_resolution,
+       CAST(inspection_type, 'Int8')        as inspection_type,
+       CAST(inspection_resolution, 'Int8')  as inspection_resolution,
        inspection_limit_reason,
        inspection_method,
-       inspection_method_by,
-       inspection_reason_type,
+       CAST(inspection_method_by, 'Int8')   as inspection_method_by,
+       CAST(inspection_reason_type, 'Int8') as inspection_reason_type,
        inspection_reason_description,
        inspection_is_restriction_checked,
        inspection_is_violation_detected,
@@ -34,7 +34,7 @@ select task_id,
        subscriber_email,
        subscriber_inn,
        subscriber_birth_date,
-       subscriber_status
+       CAST(subscriber_status, 'Int8')      as subscriber_status
 from finished_tasks
 where $1 <= finished_at
   and finished_at < $2;

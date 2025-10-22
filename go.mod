@@ -3,16 +3,16 @@ module analytics-service
 go 1.25
 
 require (
+	github.com/ClickHouse/clickhouse-go/v2 v2.40.3
 	github.com/go-co-op/gocron/v2 v2.17.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/sunshineOfficial/golib v0.0.14
+	github.com/sunshineOfficial/golib v0.0.16
 	github.com/xuri/excelize/v2 v2.10.0
 )
 
 require (
 	github.com/ClickHouse/ch-go v0.68.0 // indirect
-	github.com/ClickHouse/clickhouse-go/v2 v2.40.3 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect

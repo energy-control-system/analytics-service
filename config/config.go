@@ -23,7 +23,17 @@ func Get(log golog.Logger) (Settings, error) {
 	}
 
 	settings.Databases.Postgres = fmt.Sprintf(settings.Databases.Postgres, os.Getenv("POSTGRES_PASSWORD"))
-	settings.Databases.Clickhouse = fmt.Sprintf(settings.Databases.Clickhouse, os.Getenv("CLICKHOUSE_USER"), os.Getenv("CLICKHOUSE_PASSWORD"))
+
+	settings.Databases.Clickhouse.Username = os.Getenv("CLICKHOUSE_USER")
+	settings.Databases.Clickhouse.Password = os.Getenv("CLICKHOUSE_PASSWORD")
+	settings.Databases.Clickhouse.ConnectionString = fmt.Sprintf(
+		settings.Databases.Clickhouse.ConnectionString,
+		settings.Databases.Clickhouse.Username,
+		settings.Databases.Clickhouse.Password,
+		settings.Databases.Clickhouse.Host,
+		settings.Databases.Clickhouse.Port,
+		settings.Databases.Clickhouse.Database,
+	)
 
 	return settings, nil
 }

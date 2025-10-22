@@ -15,6 +15,7 @@ import (
 	"io/fs"
 	"time"
 
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/jmoiron/sqlx"
 	"github.com/sunshineOfficial/golib/db"
 	"github.com/sunshineOfficial/golib/gohttp"
@@ -38,10 +39,11 @@ type App struct {
 	server goserver.Server
 
 	/* db */
-	postgres     *sqlx.DB
-	clickhouse   *sqlx.DB
-	kafka        gokafka.Kafka
-	taskConsumer gokafka.Consumer
+	postgres         *sqlx.DB
+	clickhouse       *sqlx.DB
+	clickhouseNative driver.Conn
+	kafka            gokafka.Kafka
+	taskConsumer     gokafka.Consumer
 
 	/* services */
 	analyticsService *analytics.Service
@@ -73,7 +75,7 @@ func (a *App) InitDatabases(fs fs.FS, path string) (err error) {
 	clickCtx, cancelClickCtx := context.WithTimeout(a.mainCtx, dbTimeout)
 	defer cancelClickCtx()
 
-	a.clickhouse, err = db.NewClickhouse(clickCtx, a.settings.Databases.Clickhouse)
+	a.clickhouse, err = db.NewClickhouse(clickCtx, a.settings.Databases.Clickhouse.ConnectionString)
 	if err != nil {
 		return fmt.Errorf("init clickhouse: %w", err)
 	}
@@ -81,6 +83,20 @@ func (a *App) InitDatabases(fs fs.FS, path string) (err error) {
 	err = db.Migrate(fs, a.log, a.clickhouse, path+"/clickhouse", "clickhouse")
 	if err != nil {
 		return fmt.Errorf("migrate clickhouse: %w", err)
+	}
+
+	nativeClickCtx, cancelNativeClickCtx := context.WithTimeout(a.mainCtx, dbTimeout)
+	defer cancelNativeClickCtx()
+
+	a.clickhouseNative, err = db.NewNativeClickhouse(nativeClickCtx, db.NewClickhouseOptions(
+		a.settings.Databases.Clickhouse.Host,
+		a.settings.Databases.Clickhouse.Port,
+		a.settings.Databases.Clickhouse.Database,
+		a.settings.Databases.Clickhouse.Username,
+		a.settings.Databases.Clickhouse.Password,
+	))
+	if err != nil {
+		return fmt.Errorf("init native clickhouse: %w", err)
 	}
 
 	a.kafka = gokafka.NewKafka(a.settings.Databases.Kafka.Brokers)
@@ -96,7 +112,7 @@ func (a *App) InitDatabases(fs fs.FS, path string) (err error) {
 }
 
 func (a *App) InitServices() error {
-	analyticsRepository := dbanalytics.NewRepository(a.postgres, a.clickhouse)
+	analyticsRepository := dbanalytics.NewRepository(a.postgres, a.clickhouseNative)
 
 	httpClient := gohttp.NewClient(gohttp.WithTimeout(1 * time.Minute))
 
@@ -152,6 +168,10 @@ func (a *App) Stop(ctx context.Context) {
 	}
 
 	a.server.Stop()
+
+	if err = a.clickhouseNative.Close(); err != nil {
+		a.log.Errorf("failed to close clickhouse native connection: %v", err)
+	}
 
 	if err = a.clickhouse.Close(); err != nil {
 		a.log.Errorf("failed to close clickhouse connection: %v", err)

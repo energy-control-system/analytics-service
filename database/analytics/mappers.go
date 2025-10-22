@@ -9,18 +9,18 @@ import (
 
 func MapFinishedTaskToDB(t analytics.FinishedTask) FinishedTask {
 	return FinishedTask{
-		TaskID:                            t.TaskID,
+		TaskID:                            int64(t.TaskID),
 		Comment:                           t.Comment,
 		PlanVisitAt:                       t.PlanVisitAt,
 		StartedAt:                         t.StartedAt,
 		FinishedAt:                        t.FinishedAt,
-		InspectionID:                      t.Inspection.ID,
-		InspectionType:                    int(t.Inspection.Type),
-		InspectionResolution:              int(t.Inspection.Resolution),
+		InspectionID:                      int64(t.Inspection.ID),
+		InspectionType:                    int8(t.Inspection.Type),
+		InspectionResolution:              int8(t.Inspection.Resolution),
 		InspectionLimitReason:             t.Inspection.LimitReason,
 		InspectionMethod:                  t.Inspection.Method,
-		InspectionMethodBy:                int(t.Inspection.MethodBy),
-		InspectionReasonType:              int(t.Inspection.ReasonType),
+		InspectionMethodBy:                int8(t.Inspection.MethodBy),
+		InspectionReasonType:              int8(t.Inspection.ReasonType),
 		InspectionReasonDescription:       t.Inspection.ReasonDescription,
 		InspectionIsRestrictionChecked:    t.Inspection.IsRestrictionChecked,
 		InspectionIsViolationDetected:     t.Inspection.IsViolationDetected,
@@ -31,12 +31,12 @@ func MapFinishedTaskToDB(t analytics.FinishedTask) FinishedTask {
 		InspectionUnauthorizedExplanation: t.Inspection.UnauthorizedExplanation,
 		InspectionInspectAt:               t.Inspection.InspectAt,
 		InspectionEnergyActionAt:          t.Inspection.EnergyActionAt,
-		BrigadeID:                         t.Brigade.ID,
+		BrigadeID:                         int64(t.Brigade.ID),
 		BrigadeInspectors:                 MapInspectorSliceToDB(t.Brigade.Inspectors),
-		ObjectID:                          t.Object.ID,
+		ObjectID:                          int64(t.Object.ID),
 		ObjectAddress:                     t.Object.Address,
 		ObjectHaveAutomaton:               t.Object.HaveAutomaton,
-		SubscriberID:                      t.Object.Subscriber.ID,
+		SubscriberID:                      int64(t.Object.Subscriber.ID),
 		SubscriberAccountNumber:           t.Object.Subscriber.AccountNumber,
 		SubscriberSurname:                 t.Object.Subscriber.Surname,
 		SubscriberName:                    t.Object.Subscriber.Name,
@@ -45,13 +45,13 @@ func MapFinishedTaskToDB(t analytics.FinishedTask) FinishedTask {
 		SubscriberEmail:                   t.Object.Subscriber.Email,
 		SubscriberINN:                     t.Object.Subscriber.INN,
 		SubscriberBirthDate:               t.Object.Subscriber.BirthDate,
-		SubscriberStatus:                  int(t.Object.Subscriber.Status),
+		SubscriberStatus:                  int8(t.Object.Subscriber.Status),
 	}
 }
 
 func MapInspectorToDB(i analytics.Inspector) Inspector {
 	return Inspector{
-		ID:          i.ID,
+		ID:          int64(i.ID),
 		Surname:     i.Surname,
 		Name:        i.Name,
 		Patronymic:  i.Patronymic,
@@ -72,13 +72,13 @@ func MapInspectorSliceToDB(inspectors []analytics.Inspector) []Inspector {
 
 func MapFinishedTaskFromDB(t FinishedTask) analytics.FinishedTask {
 	return analytics.FinishedTask{
-		TaskID:      t.TaskID,
+		TaskID:      int(t.TaskID),
 		Comment:     t.Comment,
 		PlanVisitAt: t.PlanVisitAt,
 		StartedAt:   t.StartedAt,
 		FinishedAt:  t.FinishedAt,
 		Inspection: analytics.Inspection{
-			ID:                      t.InspectionID,
+			ID:                      int(t.InspectionID),
 			Type:                    inspection.Type(t.InspectionType),
 			Resolution:              inspection.Resolution(t.InspectionResolution),
 			LimitReason:             t.InspectionLimitReason,
@@ -97,15 +97,15 @@ func MapFinishedTaskFromDB(t FinishedTask) analytics.FinishedTask {
 			EnergyActionAt:          t.InspectionEnergyActionAt,
 		},
 		Brigade: analytics.Brigade{
-			ID:         t.BrigadeID,
+			ID:         int(t.BrigadeID),
 			Inspectors: MapInspectorSliceFromDB(t.BrigadeInspectors),
 		},
 		Object: analytics.Object{
-			ID:            t.ObjectID,
+			ID:            int(t.ObjectID),
 			Address:       t.ObjectAddress,
 			HaveAutomaton: t.ObjectHaveAutomaton,
 			Subscriber: analytics.Subscriber{
-				ID:            t.SubscriberID,
+				ID:            int(t.SubscriberID),
 				AccountNumber: t.SubscriberAccountNumber,
 				Surname:       t.SubscriberSurname,
 				Name:          t.SubscriberName,
@@ -131,7 +131,7 @@ func MapFinishedTaskSliceFromDB(tasks []FinishedTask) []analytics.FinishedTask {
 
 func MapInspectorFromDB(i Inspector) analytics.Inspector {
 	return analytics.Inspector{
-		ID:          i.ID,
+		ID:          int(i.ID),
 		Surname:     i.Surname,
 		Name:        i.Name,
 		Patronymic:  i.Patronymic,
