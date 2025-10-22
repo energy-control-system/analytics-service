@@ -221,7 +221,7 @@ func (s *Service) SubscriberOnTaskEvent(mainCtx context.Context, log golog.Logge
 		case task.EventTypeAdd:
 			err = s.handleAddedTask(ctx, event.Task)
 		case task.EventTypeStart:
-			err = s.handleStartedTask(ctx, log, event.Task)
+			err = s.handleStartedTask(ctx, event.Task)
 		case task.EventTypeFinish:
 			err = s.handleFinishedTask(ctx, event.Task)
 		default:
@@ -239,7 +239,7 @@ func (s *Service) handleAddedTask(ctx context.Context, t task.Task) error {
 	return nil
 }
 
-func (s *Service) handleStartedTask(ctx context.Context, log golog.Logger, t task.Task) error {
+func (s *Service) handleStartedTask(ctx context.Context, t task.Task) error {
 	return nil
 }
 
