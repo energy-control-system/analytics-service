@@ -141,10 +141,16 @@ func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, err
 	if err != nil {
 		return nil, fmt.Errorf("r.postgres.BeginTxx: %w", err)
 	}
+	defer func() {
+		if err != nil {
+			err = errors.Join(err, tx.Rollback())
+		}
+	}()
 
 	var dbReports []Report
 	if err = tx.SelectContext(ctx, &dbReports, getAllReportsSQL); err != nil {
-		return nil, fmt.Errorf("tx.SelectContext: %w", err)
+		err = fmt.Errorf("tx.SelectContext: %w", err)
+		return nil, err
 	}
 
 	ids := make([]int, 0, len(dbReports))
@@ -154,7 +160,8 @@ func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, err
 
 	var dbAttachments []Attachment
 	if err = tx.SelectContext(ctx, &dbAttachments, getAttachmentsByReportSQL, ids); err != nil {
-		return nil, fmt.Errorf("tx.SelectContext: %w", err)
+		err = fmt.Errorf("tx.SelectContext: %w", err)
+		return nil, err
 	}
 
 	attachmentsMap := make(map[int][]Attachment, len(dbReports))
@@ -166,7 +173,8 @@ func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, err
 	for _, dbReport := range dbReports {
 		attachments, ok := attachmentsMap[dbReport.ID]
 		if !ok {
-			return nil, fmt.Errorf("attachments for report %d not found", dbReport.ID)
+			err = fmt.Errorf("attachments for report %d not found", dbReport.ID)
+			return nil, err
 		}
 
 		report := MapReportFromDB(dbReport)
@@ -175,5 +183,10 @@ func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, err
 		reports = append(reports, report)
 	}
 
-	return reports, nil
+	if err = tx.Commit(); err != nil {
+		err = fmt.Errorf("tx.Commit: %w", err)
+		return nil, err
+	}
+
+	return reports, err
 }
