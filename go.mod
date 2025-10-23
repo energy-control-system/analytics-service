@@ -7,7 +7,7 @@ require (
 	github.com/go-co-op/gocron/v2 v2.17.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/sunshineOfficial/golib v0.0.16
+	github.com/sunshineOfficial/golib v0.0.17
 	github.com/xuri/excelize/v2 v2.10.0
 )
 
