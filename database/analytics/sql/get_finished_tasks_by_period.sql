@@ -37,4 +37,5 @@ select task_id,
        CAST(subscriber_status, 'Int8')      as subscriber_status
 from finished_tasks
 where $1 <= finished_at
-  and finished_at < $2;
+  and finished_at < $2
+order by finished_at;
