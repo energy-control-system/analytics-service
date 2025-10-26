@@ -11,6 +11,7 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/jmoiron/sqlx"
+	"github.com/sunshineOfficial/golib/db"
 )
 
 var (
@@ -92,30 +93,9 @@ func (r *Repository) AddReport(ctx context.Context, report analytics.Report) (an
 		}
 	}()
 
-	rows, err := tx.NamedQuery(addReportSQL, MapReportToDB(report))
-	if err != nil {
-		err = fmt.Errorf("tx.NamedQuery: %w", err)
-		return analytics.Report{}, err
-	}
-
-	if !rows.Next() {
-		err = errors.New("rows.Next == false")
-		return analytics.Report{}, err
-	}
-
 	var dbReport Report
-	if err = rows.StructScan(&dbReport); err != nil {
-		err = fmt.Errorf("rows.StructScan: %w", err)
-		return analytics.Report{}, err
-	}
-
-	if err = rows.Close(); err != nil {
-		err = fmt.Errorf("rows.Close: %w", err)
-		return analytics.Report{}, err
-	}
-
-	if err = rows.Err(); err != nil {
-		err = fmt.Errorf("rows.Err: %w", err)
+	if err = db.NamedGet(tx, &dbReport, addReportSQL, MapReportToDB(report)); err != nil {
+		err = fmt.Errorf("db.NamedGet: %w", err)
 		return analytics.Report{}, err
 	}
 
