@@ -32,6 +32,7 @@ type FinishedTask struct {
 	Inspection  Inspection `json:"Inspection"`
 	Brigade     Brigade    `json:"Brigade"`
 	Object      Object     `json:"Object"`
+	Subscriber  Subscriber `json:"Subscriber"`
 }
 
 type Inspection struct {
@@ -70,10 +71,9 @@ type Inspector struct {
 }
 
 type Object struct {
-	ID            int        `json:"ID"`
-	Address       string     `json:"Address"`
-	HaveAutomaton bool       `json:"HaveAutomaton"`
-	Subscriber    Subscriber `json:"Subscriber"`
+	ID            int    `json:"ID"`
+	Address       string `json:"Address"`
+	HaveAutomaton bool   `json:"HaveAutomaton"`
 }
 
 type Subscriber struct {

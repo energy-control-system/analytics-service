@@ -7,7 +7,7 @@ import (
 	"analytics-service/cluster/task"
 )
 
-func MapToFinishedTask(t task.Task, ins inspection.Inspection, brig brigade.Brigade, obj subscriber.ObjectExtended) FinishedTask {
+func MapToFinishedTask(t task.Task, ins inspection.Inspection, brig brigade.Brigade, contract subscriber.Contract) FinishedTask {
 	return FinishedTask{
 		TaskID:      t.ID,
 		Comment:     t.Comment,
@@ -16,7 +16,8 @@ func MapToFinishedTask(t task.Task, ins inspection.Inspection, brig brigade.Brig
 		FinishedAt:  *t.FinishedAt,
 		Inspection:  MapInspectionToDomain(ins),
 		Brigade:     MapBrigadeToDomain(brig),
-		Object:      MapObjectToDomain(obj),
+		Object:      MapObjectToDomain(contract.Object),
+		Subscriber:  MapSubscriberToDomain(contract.Subscriber),
 	}
 }
 
@@ -70,12 +71,11 @@ func MapInspectorSliceToDomain(inspectors []brigade.Inspector) []Inspector {
 	return result
 }
 
-func MapObjectToDomain(obj subscriber.ObjectExtended) Object {
+func MapObjectToDomain(obj subscriber.Object) Object {
 	return Object{
 		ID:            obj.ID,
 		Address:       obj.Address,
 		HaveAutomaton: obj.HaveAutomaton,
-		Subscriber:    MapSubscriberToDomain(obj.Subscriber),
 	}
 }
 

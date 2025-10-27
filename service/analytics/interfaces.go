@@ -28,7 +28,7 @@ type BrigadeService interface {
 }
 
 type SubscriberService interface {
-	GetObjectExtendedByID(ctx goctx.Context, id int) (subscriber.ObjectExtended, error)
+	GetLastContractByObjectID(ctx goctx.Context, objectID int) (subscriber.Contract, error)
 }
 
 type FileService interface {

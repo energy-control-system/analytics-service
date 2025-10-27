@@ -116,8 +116,8 @@ func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodS
 		err = f.SetSheetRow(sheet, cell, &[]any{
 			i + 1,
 			t.Object.Address,
-			fullFIO(t.Object.Subscriber.Surname, t.Object.Subscriber.Name, t.Object.Subscriber.Patronymic),
-			t.Object.Subscriber.AccountNumber,
+			fullFIO(t.Subscriber.Surname, t.Subscriber.Name, t.Subscriber.Patronymic),
+			t.Subscriber.AccountNumber,
 			t.StartedAt.In(gotime.Moscow).Format(gotime.DateTimeNet),
 			t.FinishedAt.In(gotime.Moscow).Format(gotime.DateTimeNet),
 			workType,
@@ -260,12 +260,12 @@ func (s *Service) handleFinishedTask(ctx context.Context, t task.Task) error {
 		return fmt.Errorf("get brigade by id: %w", err)
 	}
 
-	obj, err := s.subscriberService.GetObjectExtendedByID(goCtx, t.ObjectID)
+	contract, err := s.subscriberService.GetLastContractByObjectID(goCtx, t.ObjectID)
 	if err != nil {
-		return fmt.Errorf("get object by id: %w", err)
+		return fmt.Errorf("get contract by object id: %w", err)
 	}
 
-	finishedTask := MapToFinishedTask(t, ins, brig, obj)
+	finishedTask := MapToFinishedTask(t, ins, brig, contract)
 
 	err = s.repository.AddFinishedTask(goCtx, finishedTask)
 	if err != nil {
