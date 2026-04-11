@@ -20,7 +20,7 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         ):
             self.assertIn(f"create view if not exists {view_name}", sql)
 
-    def test_profile_view_uses_stable_keys_and_latest_fields(self) -> None:
+    def test_profile_view_contract_section(self) -> None:
         sql = MIGRATION.read_text(encoding="utf-8").lower()
         profile_section = sql.split(
             "create view if not exists v_bi_subscriber_object_profile as", 1
@@ -35,9 +35,11 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertNotIn("group by subscriber_id, subscriber_account_number", profile_section)
         self.assertNotIn("group by subscriber_id, object_address", profile_section)
         self.assertNotIn("group by subscriber_id, object_have_automaton", profile_section)
+        self.assertIn("object_id,", outer_select)
         for alias in (
             "subscriber_account_number",
             "subscriber_status_ru",
+            "object_id",
             "object_address",
             "object_have_automaton",
             "automaton_state_ru",
@@ -53,16 +55,13 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertIn("total_tasks_count,", outer_select)
         self.assertIn("violations_detected_count,", outer_select)
         self.assertIn("unauthorized_consumers_count", outer_select)
-
-    def test_profile_view_does_not_expose_pii_columns(self) -> None:
-        sql = MIGRATION.read_text(encoding="utf-8").lower()
         for forbidden in (
             "subscriber_phone_number",
             "subscriber_email",
             "subscriber_inn",
             "subscriber_birth_date",
         ):
-            self.assertNotIn(forbidden, sql)
+            self.assertNotIn(forbidden, profile_section)
 
 
 if __name__ == "__main__":
