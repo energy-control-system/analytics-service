@@ -25,6 +25,7 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         profile_section = sql.split(
             "create view if not exists v_bi_subscriber_object_profile as", 1
         )[1].split("-- +goose down", 1)[0]
+        outer_select = profile_section.split("from\n(", 1)[0]
 
         self.assertIn("group by subscriber_id, object_id", profile_section)
         self.assertIn("argmax(subscriber_account_number, finished_at)", profile_section)
@@ -34,6 +35,24 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertNotIn("group by subscriber_id, subscriber_account_number", profile_section)
         self.assertNotIn("group by subscriber_id, object_address", profile_section)
         self.assertNotIn("group by subscriber_id, object_have_automaton", profile_section)
+        for alias in (
+            "subscriber_account_number",
+            "subscriber_status_ru",
+            "object_address",
+            "object_have_automaton",
+            "automaton_state_ru",
+            "last_task_day",
+            "total_tasks_count",
+            "violations_detected_count",
+            "unauthorized_consumers_count",
+        ):
+            self.assertIn(alias, outer_select)
+        self.assertIn("select\n    subscriber_id,", outer_select)
+        self.assertIn("if(object_have_automaton, 'есть автомат', 'нет автомата') as automaton_state_ru", outer_select)
+        self.assertIn("last_task_day,", outer_select)
+        self.assertIn("total_tasks_count,", outer_select)
+        self.assertIn("violations_detected_count,", outer_select)
+        self.assertIn("unauthorized_consumers_count", outer_select)
 
     def test_profile_view_does_not_expose_pii_columns(self) -> None:
         sql = MIGRATION.read_text(encoding="utf-8").lower()
