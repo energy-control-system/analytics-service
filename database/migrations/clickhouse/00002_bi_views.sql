@@ -61,19 +61,26 @@ select
     object_address,
     object_have_automaton,
     if(object_have_automaton, 'Есть автомат', 'Нет автомата') as automaton_state_ru,
-    max(toDate(finished_at)) as last_task_day,
-    count() as total_tasks_count,
-    countIf(inspection_is_violation_detected) as violations_detected_count,
-    countIf(inspection_is_unauthorized_consumers) as unauthorized_consumers_count
-from finished_tasks
-group by
-    subscriber_id,
-    subscriber_account_number,
-    subscriber_status_ru,
-    object_id,
-    object_address,
-    object_have_automaton,
-    automaton_state_ru;
+    last_task_day,
+    total_tasks_count,
+    violations_detected_count,
+    unauthorized_consumers_count
+from
+(
+    select
+        subscriber_id,
+        object_id,
+        argMax(subscriber_account_number, finished_at) as subscriber_account_number,
+        argMax(subscriber_status, finished_at) as subscriber_status,
+        argMax(object_address, finished_at) as object_address,
+        argMax(object_have_automaton, finished_at) as object_have_automaton,
+        max(toDate(finished_at)) as last_task_day,
+        count() as total_tasks_count,
+        countIf(inspection_is_violation_detected) as violations_detected_count,
+        countIf(inspection_is_unauthorized_consumers) as unauthorized_consumers_count
+    from finished_tasks
+    group by subscriber_id, object_id
+);
 
 -- +goose Down
 drop view if exists v_bi_subscriber_object_profile;
