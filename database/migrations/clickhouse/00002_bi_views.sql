@@ -43,9 +43,15 @@ select
         inspection_is_violation_detected, 'Нарушение выявлено',
         'Нарушение не выявлено'
     ) as inspection_result_ru,
+    multiIf(
+        subscriber_status = 'active', 'Активен',
+        subscriber_status = 'violator', 'Нарушитель',
+        subscriber_status = 'archived', 'Архивный',
+        'Неизвестно'
+    ) as subscriber_status_ru,
     count() as tasks_count
 from finished_tasks
-group by day, inspection_type_ru, inspection_result_ru;
+group by day, inspection_type_ru, inspection_result_ru, subscriber_status_ru;
 
 create view if not exists v_bi_subscriber_object_profile as
 select

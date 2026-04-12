@@ -63,6 +63,23 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, profile_section)
 
+    def test_inspection_results_view_contract_section(self) -> None:
+        sql = MIGRATION.read_text(encoding="utf-8").lower()
+        inspection_section = sql.split(
+            "create view if not exists v_bi_inspection_results as", 1
+        )[1].split("create view if not exists v_bi_subscriber_object_profile as", 1)[0]
+
+        self.assertIn("subscriber_status_ru", inspection_section)
+        self.assertIn("multiif(", inspection_section)
+        self.assertIn("subscriber_status = 'active', 'активен'", inspection_section)
+        self.assertIn("subscriber_status = 'violator', 'нарушитель'", inspection_section)
+        self.assertIn("subscriber_status = 'archived', 'архивный'", inspection_section)
+        self.assertIn("'неизвестно'", inspection_section)
+        self.assertIn(
+            "group by day, inspection_type_ru, inspection_result_ru, subscriber_status_ru",
+            inspection_section,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
