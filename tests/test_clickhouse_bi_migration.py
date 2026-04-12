@@ -75,6 +75,8 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertIn("subscriber_status = 'violator', 'нарушитель'", inspection_section)
         self.assertIn("subscriber_status = 'archived', 'архивный'", inspection_section)
         self.assertIn("'неизвестно'", inspection_section)
+        self.assertIn("tasks_share_ratio", inspection_section)
+        self.assertIn("sum(tasks_count) over (partition by day)", inspection_section)
         self.assertIn(
             "group by day, inspection_type_ru, inspection_result_ru, subscriber_status_ru",
             inspection_section,
