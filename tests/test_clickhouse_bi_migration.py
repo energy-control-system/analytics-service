@@ -3,15 +3,19 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "database" / "migrations" / "clickhouse" / "00002_bi_views.sql"
+MIGRATION_02 = ROOT / "database" / "migrations" / "clickhouse" / "00002_bi_views.sql"
+MIGRATION_03 = ROOT / "database" / "migrations" / "clickhouse" / "00003_bi_inspection_results.sql"
 
 
 class ClickHouseBiMigrationContractTests(unittest.TestCase):
     def test_migration_file_exists(self) -> None:
-        self.assertTrue(MIGRATION.exists(), f"missing migration: {MIGRATION}")
+        self.assertTrue(MIGRATION_02.exists(), f"missing migration: {MIGRATION_02}")
+
+    def test_upgrade_migration_file_exists(self) -> None:
+        self.assertTrue(MIGRATION_03.exists(), f"missing migration: {MIGRATION_03}")
 
     def test_migration_declares_all_views(self) -> None:
-        sql = MIGRATION.read_text(encoding="utf-8").lower()
+        sql = MIGRATION_02.read_text(encoding="utf-8").lower()
         for view_name in (
             "v_bi_tasks_daily",
             "v_bi_brigade_performance",
@@ -21,7 +25,7 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
             self.assertIn(f"create view if not exists {view_name}", sql)
 
     def test_profile_view_contract_section(self) -> None:
-        sql = MIGRATION.read_text(encoding="utf-8").lower()
+        sql = MIGRATION_02.read_text(encoding="utf-8").lower()
         profile_section = sql.split(
             "create view if not exists v_bi_subscriber_object_profile as", 1
         )[1].split("-- +goose down", 1)[0]
@@ -64,18 +68,33 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
             self.assertNotIn(forbidden, profile_section)
 
     def test_inspection_results_view_contract_section(self) -> None:
-        sql = MIGRATION.read_text(encoding="utf-8").lower()
+        sql = MIGRATION_02.read_text(encoding="utf-8").lower()
         inspection_section = sql.split(
             "create view if not exists v_bi_inspection_results as", 1
         )[1].split("create view if not exists v_bi_subscriber_object_profile as", 1)[0]
 
+        self.assertIn(
+            "group by day, inspection_type_ru, inspection_result_ru",
+            inspection_section,
+        )
+        self.assertNotIn("subscriber_status_ru", inspection_section)
+        self.assertNotIn("day_tasks_share_ratio", inspection_section)
+        self.assertNotIn("sum(tasks_count) over (partition by day)", inspection_section)
+
+    def test_upgrade_inspection_results_view_contract_section(self) -> None:
+        sql = MIGRATION_03.read_text(encoding="utf-8").lower()
+        self.assertIn("drop view if exists v_bi_inspection_results", sql)
+        inspection_section = sql.split(
+            "create view if not exists v_bi_inspection_results as", 1
+        )[1].split("-- +goose down", 1)[0]
+
         self.assertIn("subscriber_status_ru", inspection_section)
+        self.assertIn("day_tasks_share_ratio", inspection_section)
         self.assertIn("multiif(", inspection_section)
         self.assertIn("subscriber_status = 'active', 'активен'", inspection_section)
         self.assertIn("subscriber_status = 'violator', 'нарушитель'", inspection_section)
         self.assertIn("subscriber_status = 'archived', 'архивный'", inspection_section)
         self.assertIn("'неизвестно'", inspection_section)
-        self.assertIn("tasks_share_ratio", inspection_section)
         self.assertIn("sum(tasks_count) over (partition by day)", inspection_section)
         self.assertIn(
             "group by day, inspection_type_ru, inspection_result_ru, subscriber_status_ru",
