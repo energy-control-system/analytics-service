@@ -40,3 +40,24 @@ from
 
 -- +goose Down
 drop view if exists v_bi_inspection_results;
+create view if not exists v_bi_inspection_results as
+select
+    toDate(finished_at) as day,
+    multiIf(
+        inspection_type = 'limitation', 'Ограничение',
+        inspection_type = 'resumption', 'Возобновление',
+        inspection_type = 'verification', 'Контроль ограничения',
+        inspection_type = 'unauthorized_connection', 'Несанкционированное подключение',
+        'Неизвестно'
+    ) as inspection_type_ru,
+    multiIf(
+        inspection_type = 'limitation' and inspection_resolution = 'limited', 'Ограничение введено',
+        inspection_type = 'limitation', 'Недопуск',
+        inspection_type = 'resumption' and inspection_resolution = 'resumed', 'Возобновление выполнено',
+        inspection_type = 'resumption', 'Недопуск',
+        inspection_is_violation_detected, 'Нарушение выявлено',
+        'Нарушение не выявлено'
+    ) as inspection_result_ru,
+    count() as tasks_count
+from finished_tasks
+group by day, inspection_type_ru, inspection_result_ru;

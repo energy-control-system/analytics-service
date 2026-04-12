@@ -101,6 +101,20 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
             inspection_section,
         )
 
+    def test_upgrade_inspection_results_rollback_contract(self) -> None:
+        sql = MIGRATION_03.read_text(encoding="utf-8").lower()
+        down_section = sql.split("-- +goose down", 1)[1]
+
+        self.assertIn("drop view if exists v_bi_inspection_results", down_section)
+        self.assertIn("create view if not exists v_bi_inspection_results", down_section)
+        self.assertIn(
+            "group by day, inspection_type_ru, inspection_result_ru",
+            down_section,
+        )
+        self.assertNotIn("subscriber_status_ru", down_section)
+        self.assertNotIn("day_tasks_share_ratio", down_section)
+        self.assertNotIn("sum(tasks_count) over (partition by day)", down_section)
+
 
 if __name__ == "__main__":
     unittest.main()
