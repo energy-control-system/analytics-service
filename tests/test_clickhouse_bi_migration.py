@@ -5,6 +5,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATION_02 = ROOT / "database" / "migrations" / "clickhouse" / "00002_bi_views.sql"
 MIGRATION_03 = ROOT / "database" / "migrations" / "clickhouse" / "00003_bi_inspection_results.sql"
+MIGRATION_04 = ROOT / "database" / "migrations" / "clickhouse" / "00004_consumption_anomaly_views.sql"
+ADD_FINISHED_TASK_SQL = ROOT / "database" / "analytics" / "sql" / "add_finished_task.sql"
 
 
 class ClickHouseBiMigrationContractTests(unittest.TestCase):
@@ -13,6 +15,9 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
 
     def test_upgrade_migration_file_exists(self) -> None:
         self.assertTrue(MIGRATION_03.exists(), f"missing migration: {MIGRATION_03}")
+
+    def test_consumption_anomaly_migration_file_exists(self) -> None:
+        self.assertTrue(MIGRATION_04.exists(), f"missing migration: {MIGRATION_04}")
 
     def test_migration_declares_all_views(self) -> None:
         sql = MIGRATION_02.read_text(encoding="utf-8").lower()
@@ -114,6 +119,38 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertNotIn("subscriber_status_ru", down_section)
         self.assertNotIn("day_tasks_share_ratio", down_section)
         self.assertNotIn("sum(tasks_count) over (partition by day)", down_section)
+
+    def test_consumption_anomaly_views_contract(self) -> None:
+        sql = MIGRATION_04.read_text(encoding="utf-8").lower()
+
+        self.assertIn("alter table finished_tasks", sql)
+        self.assertIn("add column if not exists inspected_devices", sql)
+        self.assertIn("array(tuple(", sql)
+        self.assertIn("consumption_kwh decimal(15, 2)", sql)
+        self.assertIn("create view if not exists v_bi_consumption_monthly", sql)
+        self.assertIn("create view if not exists v_bi_consumption_anomalies", sql)
+        self.assertIn("array join inspected_devices", sql)
+        self.assertIn("tostring(device_reading.1)", sql)
+        self.assertIn("sum(todecimal64(device_reading.4, 2))", sql)
+        self.assertIn("avg(tofloat64(monthly_consumption_kwh)) over (partition by subscriber_id, object_id)", sql)
+        self.assertIn("count() over (partition by subscriber_id, object_id)", sql)
+        self.assertIn("partition by district_name", sql)
+        self.assertIn("subscriber_months_count >= 3", sql)
+        self.assertIn("subscriber_deviation_ratio >= 0.5", sql)
+        self.assertIn("district_deviation_ratio >= 2.5", sql)
+        self.assertIn("'скачок относительно истории абонента'", sql)
+        self.assertIn("'провал относительно истории абонента'", sql)
+        self.assertIn("'выше среднего по району'", sql)
+
+    def test_finished_task_insert_names_inspected_devices_column(self) -> None:
+        sql = ADD_FINISHED_TASK_SQL.read_text(encoding="utf-8").lower()
+
+        self.assertIn("insert into finished_tasks", sql)
+        self.assertIn("inspection_energy_action_at", sql)
+        self.assertIn("inspected_devices", sql)
+        self.assertIn("brigade_id", sql)
+        self.assertLess(sql.index("inspection_energy_action_at"), sql.index("inspected_devices"))
+        self.assertLess(sql.index("inspected_devices"), sql.index("brigade_id"))
 
 
 if __name__ == "__main__":

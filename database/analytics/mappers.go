@@ -31,6 +31,7 @@ func MapFinishedTaskToDB(t analytics.FinishedTask) FinishedTask {
 		InspectionUnauthorizedExplanation: t.Inspection.UnauthorizedExplanation,
 		InspectionInspectAt:               t.Inspection.InspectAt,
 		InspectionEnergyActionAt:          t.Inspection.EnergyActionAt,
+		InspectedDevices:                  MapInspectedDeviceSliceToDB(t.Inspection.Devices),
 		BrigadeID:                         int64(t.Brigade.ID),
 		BrigadeInspectors:                 MapInspectorSliceToDB(t.Brigade.Inspectors),
 		ObjectID:                          int64(t.Object.ID),
@@ -47,6 +48,25 @@ func MapFinishedTaskToDB(t analytics.FinishedTask) FinishedTask {
 		SubscriberBirthDate:               t.Subscriber.BirthDate,
 		SubscriberStatus:                  int8(t.Subscriber.Status),
 	}
+}
+
+func MapInspectedDeviceToDB(device analytics.InspectedDevice) InspectedDevice {
+	return InspectedDevice{
+		ID:          int64(device.ID),
+		DeviceID:    int64(device.DeviceID),
+		Value:       device.Value,
+		Consumption: device.Consumption,
+		CreatedAt:   device.CreatedAt,
+	}
+}
+
+func MapInspectedDeviceSliceToDB(devices []analytics.InspectedDevice) []InspectedDevice {
+	result := make([]InspectedDevice, 0, len(devices))
+	for _, device := range devices {
+		result = append(result, MapInspectedDeviceToDB(device))
+	}
+
+	return result
 }
 
 func MapInspectorToDB(i analytics.Inspector) Inspector {
@@ -95,6 +115,7 @@ func MapFinishedTaskFromDB(t FinishedTask) analytics.FinishedTask {
 			UnauthorizedExplanation: t.InspectionUnauthorizedExplanation,
 			InspectAt:               t.InspectionInspectAt,
 			EnergyActionAt:          t.InspectionEnergyActionAt,
+			Devices:                 MapInspectedDeviceSliceFromDB(t.InspectedDevices),
 		},
 		Brigade: analytics.Brigade{
 			ID:         int(t.BrigadeID),
@@ -118,6 +139,25 @@ func MapFinishedTaskFromDB(t FinishedTask) analytics.FinishedTask {
 			Status:        subscriber.Status(t.SubscriberStatus),
 		},
 	}
+}
+
+func MapInspectedDeviceFromDB(device InspectedDevice) analytics.InspectedDevice {
+	return analytics.InspectedDevice{
+		ID:          int(device.ID),
+		DeviceID:    int(device.DeviceID),
+		Value:       device.Value,
+		Consumption: device.Consumption,
+		CreatedAt:   device.CreatedAt,
+	}
+}
+
+func MapInspectedDeviceSliceFromDB(devices []InspectedDevice) []analytics.InspectedDevice {
+	result := make([]analytics.InspectedDevice, 0, len(devices))
+	for _, device := range devices {
+		result = append(result, MapInspectedDeviceFromDB(device))
+	}
+
+	return result
 }
 
 func MapFinishedTaskSliceFromDB(tasks []FinishedTask) []analytics.FinishedTask {

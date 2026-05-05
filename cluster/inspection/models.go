@@ -1,6 +1,10 @@
 package inspection
 
-import "time"
+import (
+	"time"
+
+	"github.com/shopspring/decimal"
+)
 
 type Status int
 
@@ -48,25 +52,35 @@ const (
 )
 
 type Inspection struct {
-	ID                      int         `json:"ID"`
-	TaskID                  int         `json:"TaskID"`
-	Status                  Status      `json:"Status"`
-	Type                    *Type       `json:"Type"`
-	Resolution              *Resolution `json:"Resolution"`
-	LimitReason             *string     `json:"LimitReason"`
-	Method                  *string     `json:"Method"`
-	MethodBy                *MethodBy   `json:"MethodBy"`
-	ReasonType              *ReasonType `json:"ReasonType"`
-	ReasonDescription       *string     `json:"ReasonDescription"`
-	IsRestrictionChecked    *bool       `json:"IsRestrictionChecked"`
-	IsViolationDetected     *bool       `json:"IsViolationDetected"`
-	IsExpenseAvailable      *bool       `json:"IsExpenseAvailable"`
-	ViolationDescription    *string     `json:"ViolationDescription"`
-	IsUnauthorizedConsumers *bool       `json:"IsUnauthorizedConsumers"`
-	UnauthorizedDescription *string     `json:"UnauthorizedDescription"`
-	UnauthorizedExplanation *string     `json:"UnauthorizedExplanation"`
-	InspectAt               *time.Time  `json:"InspectAt"`
-	EnergyActionAt          *time.Time  `json:"EnergyActionAt"`
-	CreatedAt               time.Time   `json:"CreatedAt"`
-	UpdatedAt               time.Time   `json:"UpdatedAt"`
+	ID                      int               `json:"ID"`
+	TaskID                  int               `json:"TaskID"`
+	Status                  Status            `json:"Status"`
+	Type                    *Type             `json:"Type"`
+	Resolution              *Resolution       `json:"Resolution"`
+	LimitReason             *string           `json:"LimitReason"`
+	Method                  *string           `json:"Method"`
+	MethodBy                *MethodBy         `json:"MethodBy"`
+	ReasonType              *ReasonType       `json:"ReasonType"`
+	ReasonDescription       *string           `json:"ReasonDescription"`
+	IsRestrictionChecked    *bool             `json:"IsRestrictionChecked"`
+	IsViolationDetected     *bool             `json:"IsViolationDetected"`
+	IsExpenseAvailable      *bool             `json:"IsExpenseAvailable"`
+	ViolationDescription    *string           `json:"ViolationDescription"`
+	IsUnauthorizedConsumers *bool             `json:"IsUnauthorizedConsumers"`
+	UnauthorizedDescription *string           `json:"UnauthorizedDescription"`
+	UnauthorizedExplanation *string           `json:"UnauthorizedExplanation"`
+	InspectAt               *time.Time        `json:"InspectAt"`
+	EnergyActionAt          *time.Time        `json:"EnergyActionAt"`
+	InspectedDevices        []InspectedDevice `json:"InspectedDevices"`
+	CreatedAt               time.Time         `json:"CreatedAt"`
+	UpdatedAt               time.Time         `json:"UpdatedAt"`
+}
+
+type InspectedDevice struct {
+	ID           int             `json:"id"`
+	DeviceID     int             `json:"device_id"`
+	InspectionID int             `json:"inspection_id"`
+	Value        decimal.Decimal `json:"value"`
+	Consumption  decimal.Decimal `json:"consumption"`
+	CreatedAt    time.Time       `json:"created_at"`
 }

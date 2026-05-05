@@ -40,7 +40,27 @@ func MapInspectionToDomain(ins inspection.Inspection) Inspection {
 		UnauthorizedExplanation: ins.UnauthorizedExplanation,
 		InspectAt:               *ins.InspectAt,
 		EnergyActionAt:          *ins.EnergyActionAt,
+		Devices:                 MapInspectedDeviceSliceToDomain(ins.InspectedDevices),
 	}
+}
+
+func MapInspectedDeviceToDomain(device inspection.InspectedDevice) InspectedDevice {
+	return InspectedDevice{
+		ID:          device.ID,
+		DeviceID:    device.DeviceID,
+		Value:       device.Value,
+		Consumption: device.Consumption,
+		CreatedAt:   device.CreatedAt,
+	}
+}
+
+func MapInspectedDeviceSliceToDomain(devices []inspection.InspectedDevice) []InspectedDevice {
+	result := make([]InspectedDevice, 0, len(devices))
+	for _, device := range devices {
+		result = append(result, MapInspectedDeviceToDomain(device))
+	}
+
+	return result
 }
 
 func MapBrigadeToDomain(brig brigade.Brigade) Brigade {

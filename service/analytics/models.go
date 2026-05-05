@@ -5,6 +5,8 @@ import (
 	"analytics-service/cluster/inspection"
 	"analytics-service/cluster/subscriber"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type ReportType int
@@ -53,6 +55,15 @@ type Inspection struct {
 	UnauthorizedExplanation *string               `json:"UnauthorizedExplanation"`
 	InspectAt               time.Time             `json:"InspectAt"`
 	EnergyActionAt          time.Time             `json:"EnergyActionAt"`
+	Devices                 []InspectedDevice     `json:"Devices"`
+}
+
+type InspectedDevice struct {
+	ID          int             `json:"ID"`
+	DeviceID    int             `json:"DeviceID"`
+	Value       decimal.Decimal `json:"Value"`
+	Consumption decimal.Decimal `json:"Consumption"`
+	CreatedAt   time.Time       `json:"CreatedAt"`
 }
 
 type Brigade struct {

@@ -224,6 +224,8 @@ func (s *Service) SubscriberOnTaskEvent(mainCtx context.Context, log golog.Logge
 			err = s.handleStartedTask(ctx, event.Task)
 		case task.EventTypeFinish:
 			err = s.handleFinishedTask(ctx, event.Task)
+		case task.EventTypeAssign:
+			err = nil
 		default:
 			err = fmt.Errorf("unknown event type: %v", event.Type)
 		}
