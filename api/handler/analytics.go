@@ -14,6 +14,17 @@ type periodVars struct {
 	PeriodEnd   string `path:"periodEnd"`
 }
 
+// CreateBasicReport godoc
+// @Summary Create basic report
+// @Description Generates a basic analytics report for the inclusive date period.
+// @Tags reports
+// @Produce json
+// @Param periodStart path string true "Period start date in YYYY-MM-DD format"
+// @Param periodEnd path string true "Period end date in YYYY-MM-DD format"
+// @Success 200 {object} analytics.Report
+// @Failure 400 {object} gorouter.ErrorResponse
+// @Failure 500 {object} gorouter.ErrorResponse
+// @Router /reports/basic/{periodStart}/{periodEnd} [post]
 func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 	return func(c gorouter.Context) error {
 		var vars periodVars
@@ -40,6 +51,14 @@ func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 	}
 }
 
+// GetAllReports godoc
+// @Summary List reports
+// @Description Returns all generated analytics reports.
+// @Tags reports
+// @Produce json
+// @Success 200 {array} analytics.Report
+// @Failure 500 {object} gorouter.ErrorResponse
+// @Router /reports [get]
 func GetAllReports(s *analytics.Service) gorouter.Handler {
 	return func(c gorouter.Context) error {
 		response, err := s.GetAllReports(c.Ctx())

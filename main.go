@@ -8,8 +8,14 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/sunshineOfficial/golib/golog"
 	"github.com/sunshineOfficial/golib/goos"
+
+	_ "analytics-service/docs"
 )
 
+// @title Analytics Service API
+// @version 1.0
+// @description API for generating and listing analytics reports.
+// @BasePath /api/analytics-service
 func main() {
 	configureDecimal()
 

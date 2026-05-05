@@ -1,0 +1,118 @@
+basePath: /api/analytics-service
+definitions:
+  analytics-service_service_analytics.Report:
+    properties:
+      CreatedAt:
+        type: string
+      Files:
+        items:
+          $ref: '#/definitions/file.File'
+        type: array
+      ID:
+        type: integer
+      PeriodEnd:
+        type: string
+      PeriodStart:
+        type: string
+      Type:
+        $ref: '#/definitions/analytics.ReportType'
+    type: object
+  analytics.ReportType:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - ReportTypeUnknown
+    - ReportTypeBasic
+  file.Bucket:
+    enum:
+    - images
+    - documents
+    type: string
+    x-enum-varnames:
+    - BucketImages
+    - BucketDocuments
+  file.File:
+    properties:
+      Bucket:
+        $ref: '#/definitions/file.Bucket'
+      FileName:
+        type: string
+      FileSize:
+        type: integer
+      ID:
+        type: integer
+      URL:
+        type: string
+    type: object
+  gorouter.ErrorInfo:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  gorouter.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/gorouter.ErrorInfo'
+    type: object
+info:
+  contact: {}
+  description: API for generating and listing analytics reports.
+  title: Analytics Service API
+  version: "1.0"
+paths:
+  /reports:
+    get:
+      description: Returns all generated analytics reports.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/analytics-service_service_analytics.Report'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.ErrorResponse'
+      summary: List reports
+      tags:
+      - reports
+  /reports/basic/{periodStart}/{periodEnd}:
+    post:
+      description: Generates a basic analytics report for the inclusive date period.
+      parameters:
+      - description: Period start date in YYYY-MM-DD format
+        in: path
+        name: periodStart
+        required: true
+        type: string
+      - description: Period end date in YYYY-MM-DD format
+        in: path
+        name: periodEnd
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/analytics-service_service_analytics.Report'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.ErrorResponse'
+      summary: Create basic report
+      tags:
+      - reports
+swagger: "2.0"
