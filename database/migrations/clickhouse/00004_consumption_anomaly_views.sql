@@ -114,15 +114,18 @@ select
         'Провал относительно истории абонента',
         district_deviation_ratio >= 2.5,
         'Выше среднего по району',
+        district_avg_consumption_kwh > 0 and district_deviation_ratio <= 0.4,
+        'Ниже среднего по району',
         'Норма'
     ) as anomaly_reason,
-    greatest(subscriber_deviation_ratio, district_deviation_ratio - 1) as severity_score,
+    greatest(subscriber_deviation_ratio, abs(district_deviation_ratio - 1)) as severity_score,
     readings_count,
     last_reading_at
 from scored
 where
     (subscriber_months_count >= 3 and subscriber_deviation_ratio >= 0.5)
-    or district_deviation_ratio >= 2.5;
+    or district_deviation_ratio >= 2.5
+    or (district_avg_consumption_kwh > 0 and district_deviation_ratio <= 0.4);
 
 -- +goose Down
 drop view if exists v_bi_consumption_anomalies;

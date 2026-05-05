@@ -138,9 +138,11 @@ class ClickHouseBiMigrationContractTests(unittest.TestCase):
         self.assertIn("subscriber_months_count >= 3", sql)
         self.assertIn("subscriber_deviation_ratio >= 0.5", sql)
         self.assertIn("district_deviation_ratio >= 2.5", sql)
+        self.assertIn("district_deviation_ratio <= 0.4", sql)
         self.assertIn("'скачок относительно истории абонента'", sql)
         self.assertIn("'провал относительно истории абонента'", sql)
         self.assertIn("'выше среднего по району'", sql)
+        self.assertIn("'ниже среднего по району'", sql)
 
     def test_finished_task_insert_names_inspected_devices_column(self) -> None:
         sql = ADD_FINISHED_TASK_SQL.read_text(encoding="utf-8").lower()
