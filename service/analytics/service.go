@@ -15,6 +15,7 @@ import (
 	"github.com/sunshineOfficial/golib/gokafka"
 	"github.com/sunshineOfficial/golib/golog"
 	"github.com/sunshineOfficial/golib/gotime"
+	"github.com/sunshineOfficial/golib/pagination"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -163,8 +164,12 @@ func fullFIO(surname, name, patronymic string) string {
 	return result
 }
 
-func (s *Service) GetAllReports(ctx goctx.Context) ([]Report, error) {
-	reports, err := s.repository.GetAllReports(ctx)
+func (s *Service) GetAllReports(ctx goctx.Context, page pagination.Pagination) ([]Report, error) {
+	if err := page.Validate(); err != nil {
+		return nil, fmt.Errorf("validate pagination: %w", err)
+	}
+
+	reports, err := s.repository.GetAllReports(ctx, page)
 	if err != nil {
 		return nil, fmt.Errorf("get all reports from db: %w", err)
 	}

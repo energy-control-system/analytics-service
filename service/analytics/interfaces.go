@@ -10,13 +10,14 @@ import (
 	"time"
 
 	"github.com/sunshineOfficial/golib/goctx"
+	"github.com/sunshineOfficial/golib/pagination"
 )
 
 type Repository interface {
 	AddFinishedTask(ctx context.Context, t FinishedTask) error
 	GetFinishedTasksByPeriod(ctx context.Context, periodStart, periodEnd time.Time) ([]FinishedTask, error)
 	AddReport(ctx context.Context, r Report) (Report, error)
-	GetAllReports(ctx context.Context) ([]Report, error)
+	GetAllReports(ctx context.Context, page pagination.Pagination) ([]Report, error)
 }
 
 type InspectionService interface {

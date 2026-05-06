@@ -7,7 +7,8 @@ require (
 	github.com/go-co-op/gocron/v2 v2.17.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/sunshineOfficial/golib v0.0.18
+	github.com/sunshineOfficial/golib v0.0.20
+	github.com/swaggo/swag v1.16.6
 	github.com/xuri/excelize/v2 v2.10.0
 )
 
@@ -81,7 +82,6 @@ require (
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	github.com/swaggo/files/v2 v2.0.2 // indirect
 	github.com/swaggo/http-swagger/v2 v2.0.2 // indirect
-	github.com/swaggo/swag v1.16.6 // indirect
 	github.com/tiendc/go-deepcopy v1.7.1 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2 // indirect

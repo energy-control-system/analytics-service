@@ -12,6 +12,7 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/jmoiron/sqlx"
 	"github.com/sunshineOfficial/golib/db"
+	"github.com/sunshineOfficial/golib/pagination"
 )
 
 var (
@@ -116,7 +117,7 @@ func (r *Repository) AddReport(ctx context.Context, report analytics.Report) (an
 	return newReport, err
 }
 
-func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, error) {
+func (r *Repository) GetAllReports(ctx context.Context, page pagination.Pagination) ([]analytics.Report, error) {
 	tx, err := r.postgres.BeginTxx(ctx, &sql.TxOptions{ReadOnly: true})
 	if err != nil {
 		return nil, fmt.Errorf("r.postgres.BeginTxx: %w", err)
@@ -128,9 +129,16 @@ func (r *Repository) GetAllReports(ctx context.Context) ([]analytics.Report, err
 	}()
 
 	var dbReports []Report
-	if err = tx.SelectContext(ctx, &dbReports, getAllReportsSQL); err != nil {
+	if err = tx.SelectContext(ctx, &dbReports, getAllReportsSQL, page.LimitArg(), page.Offset); err != nil {
 		err = fmt.Errorf("tx.SelectContext: %w", err)
 		return nil, err
+	}
+	if len(dbReports) == 0 {
+		if err = tx.Commit(); err != nil {
+			err = fmt.Errorf("tx.Commit: %w", err)
+			return nil, err
+		}
+		return []analytics.Report{}, nil
 	}
 
 	ids := make([]int, 0, len(dbReports))
