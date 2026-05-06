@@ -57,12 +57,12 @@ with scored as
         district_avg_consumption_kwh,
         if(
             subscriber_avg_consumption_kwh > 0,
-            abs(monthly_consumption_kwh - subscriber_avg_consumption_kwh) / subscriber_avg_consumption_kwh,
+            (monthly_consumption_kwh - subscriber_avg_consumption_kwh) / subscriber_avg_consumption_kwh,
             0
         ) as subscriber_deviation_ratio,
         if(
             district_avg_consumption_kwh > 0,
-            monthly_consumption_kwh / district_avg_consumption_kwh,
+            (monthly_consumption_kwh - district_avg_consumption_kwh) / district_avg_consumption_kwh,
             0
         ) as district_deviation_ratio
     from
@@ -79,12 +79,33 @@ with scored as
             toFloat64(monthly_consumption_kwh) as monthly_consumption_kwh,
             readings_count,
             last_reading_at,
-            avg(toFloat64(monthly_consumption_kwh)) over (partition by subscriber_id, object_id) as subscriber_avg_consumption_kwh,
-            count() over (partition by subscriber_id, object_id) as subscriber_months_count,
-            (
-                sum(toFloat64(monthly_consumption_kwh)) over (partition by district_name)
-                - toFloat64(monthly_consumption_kwh)
-            ) / nullIf(count() over (partition by district_name) - 1, 0) as district_avg_consumption_kwh
+            ifNull(
+                sum(toFloat64(monthly_consumption_kwh)) over (
+                    partition by subscriber_id, object_id
+                    order by month
+                    rows between unbounded preceding and 1 preceding
+                ) / nullIf(
+                    count() over (
+                        partition by subscriber_id, object_id
+                        order by month
+                        rows between unbounded preceding and 1 preceding
+                    ),
+                    0
+                ),
+                0
+            ) as subscriber_avg_consumption_kwh,
+            count() over (
+                partition by subscriber_id, object_id
+                order by month
+                rows between unbounded preceding and 1 preceding
+            ) as subscriber_months_count,
+            ifNull(
+                (
+                    sum(toFloat64(monthly_consumption_kwh)) over (partition by district_name, month)
+                    - toFloat64(monthly_consumption_kwh)
+                ) / nullIf(count() over (partition by district_name, month) - 1, 0),
+                0
+            ) as district_avg_consumption_kwh
         from v_bi_consumption_monthly
     )
 )
@@ -102,30 +123,28 @@ select
     subscriber_months_count,
     round(district_avg_consumption_kwh, 2) as district_avg_consumption_kwh,
     round(subscriber_deviation_ratio * 100, 2) as subscriber_deviation_percent,
-    round((district_deviation_ratio - 1) * 100, 2) as district_deviation_percent,
+    round(district_deviation_ratio * 100, 2) as district_deviation_percent,
     multiIf(
         subscriber_months_count >= 3
-            and monthly_consumption_kwh > subscriber_avg_consumption_kwh
             and subscriber_deviation_ratio >= 0.5,
         'Скачок относительно истории абонента',
         subscriber_months_count >= 3
-            and monthly_consumption_kwh < subscriber_avg_consumption_kwh
-            and subscriber_deviation_ratio >= 0.5,
+            and subscriber_deviation_ratio <= -0.5,
         'Провал относительно истории абонента',
-        district_deviation_ratio >= 2.5,
+        district_deviation_ratio >= 1.5,
         'Выше среднего по району',
-        district_avg_consumption_kwh > 0 and district_deviation_ratio <= 0.4,
+        district_deviation_ratio <= -0.6,
         'Ниже среднего по району',
         'Норма'
     ) as anomaly_reason,
-    greatest(subscriber_deviation_ratio, abs(district_deviation_ratio - 1)) as severity_score,
+    greatest(abs(subscriber_deviation_ratio), abs(district_deviation_ratio)) as severity_score,
     readings_count,
     last_reading_at
 from scored
 where
-    (subscriber_months_count >= 3 and subscriber_deviation_ratio >= 0.5)
-    or district_deviation_ratio >= 2.5
-    or (district_avg_consumption_kwh > 0 and district_deviation_ratio <= 0.4);
+    (subscriber_months_count >= 3 and abs(subscriber_deviation_ratio) >= 0.5)
+    or district_deviation_ratio >= 1.5
+    or district_deviation_ratio <= -0.6;
 
 -- +goose Down
 drop view if exists v_bi_consumption_anomalies;
