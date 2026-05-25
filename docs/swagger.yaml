@@ -1,33 +1,12 @@
 components:
   schemas:
-    analytics-service_cluster_file.Bucket:
-      enum:
-      - images
-      - documents
-      type: string
-      x-enum-varnames:
-      - BucketImages
-      - BucketDocuments
-    analytics-service_cluster_file.File:
-      properties:
-        Bucket:
-          $ref: '#/components/schemas/analytics-service_cluster_file.Bucket'
-        FileName:
-          type: string
-        FileSize:
-          type: integer
-        ID:
-          type: integer
-        URL:
-          type: string
-      type: object
     analytics-service_service_analytics.Report:
       properties:
         CreatedAt:
           type: string
         Files:
           items:
-            $ref: '#/components/schemas/analytics-service_cluster_file.File'
+            $ref: '#/components/schemas/file.File'
           type: array
           uniqueItems: false
         ID:
@@ -37,9 +16,9 @@ components:
         PeriodStart:
           type: string
         Type:
-          $ref: '#/components/schemas/analytics-service_service_analytics.ReportType'
+          $ref: '#/components/schemas/analytics.ReportType'
       type: object
-    analytics-service_service_analytics.ReportType:
+    analytics.ReportType:
       enum:
       - 0
       - 1
@@ -47,6 +26,27 @@ components:
       x-enum-varnames:
       - ReportTypeUnknown
       - ReportTypeBasic
+    file.Bucket:
+      enum:
+      - images
+      - documents
+      type: string
+      x-enum-varnames:
+      - BucketImages
+      - BucketDocuments
+    file.File:
+      properties:
+        Bucket:
+          $ref: '#/components/schemas/file.Bucket'
+        FileName:
+          type: string
+        FileSize:
+          type: integer
+        ID:
+          type: integer
+        URL:
+          type: string
+      type: object
     gorouter.ErrorInfo:
       properties:
         code:

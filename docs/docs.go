@@ -8,7 +8,45 @@ const docTemplate = `{
     "schemes": {{ marshal .Schemes }},
     "components": {
         "schemas": {
-            "analytics-service_cluster_file.Bucket": {
+            "analytics-service_service_analytics.Report": {
+                "properties": {
+                    "CreatedAt": {
+                        "type": "string"
+                    },
+                    "Files": {
+                        "items": {
+                            "$ref": "#/components/schemas/file.File"
+                        },
+                        "type": "array",
+                        "uniqueItems": false
+                    },
+                    "ID": {
+                        "type": "integer"
+                    },
+                    "PeriodEnd": {
+                        "type": "string"
+                    },
+                    "PeriodStart": {
+                        "type": "string"
+                    },
+                    "Type": {
+                        "$ref": "#/components/schemas/analytics.ReportType"
+                    }
+                },
+                "type": "object"
+            },
+            "analytics.ReportType": {
+                "enum": [
+                    0,
+                    1
+                ],
+                "type": "integer",
+                "x-enum-varnames": [
+                    "ReportTypeUnknown",
+                    "ReportTypeBasic"
+                ]
+            },
+            "file.Bucket": {
                 "enum": [
                     "images",
                     "documents"
@@ -19,10 +57,10 @@ const docTemplate = `{
                     "BucketDocuments"
                 ]
             },
-            "analytics-service_cluster_file.File": {
+            "file.File": {
                 "properties": {
                     "Bucket": {
-                        "$ref": "#/components/schemas/analytics-service_cluster_file.Bucket"
+                        "$ref": "#/components/schemas/file.Bucket"
                     },
                     "FileName": {
                         "type": "string"
@@ -38,44 +76,6 @@ const docTemplate = `{
                     }
                 },
                 "type": "object"
-            },
-            "analytics-service_service_analytics.Report": {
-                "properties": {
-                    "CreatedAt": {
-                        "type": "string"
-                    },
-                    "Files": {
-                        "items": {
-                            "$ref": "#/components/schemas/analytics-service_cluster_file.File"
-                        },
-                        "type": "array",
-                        "uniqueItems": false
-                    },
-                    "ID": {
-                        "type": "integer"
-                    },
-                    "PeriodEnd": {
-                        "type": "string"
-                    },
-                    "PeriodStart": {
-                        "type": "string"
-                    },
-                    "Type": {
-                        "$ref": "#/components/schemas/analytics-service_service_analytics.ReportType"
-                    }
-                },
-                "type": "object"
-            },
-            "analytics-service_service_analytics.ReportType": {
-                "enum": [
-                    0,
-                    1
-                ],
-                "type": "integer",
-                "x-enum-varnames": [
-                    "ReportTypeUnknown",
-                    "ReportTypeBasic"
-                ]
             },
             "gorouter.ErrorInfo": {
                 "properties": {
