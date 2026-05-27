@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"analytics-service/cluster/file"
 	"analytics-service/service/analytics"
 	"time"
 
@@ -9,5 +10,5 @@ import (
 )
 
 type AnalyticsService interface {
-	CreateBasicReport(ctx goctx.Context, log golog.Logger, periodStart, periodEnd time.Time) (analytics.Report, error)
+	CreateBasicReport(ctx goctx.Context, log golog.Logger, periodStart, periodEnd time.Time, headers file.ForwardedHeaders) (analytics.Report, error)
 }

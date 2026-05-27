@@ -33,6 +33,6 @@ type SubscriberService interface {
 }
 
 type FileService interface {
-	Upload(ctx goctx.Context, fileName string, file io.Reader) (file.File, error)
-	GetFilesByIDs(ctx goctx.Context, ids []int) ([]file.File, error)
+	Upload(ctx goctx.Context, fileName string, file io.Reader, headers file.ForwardedHeaders) (file.File, error)
+	GetFilesByIDs(ctx goctx.Context, ids []int, headers file.ForwardedHeaders) ([]file.File, error)
 }

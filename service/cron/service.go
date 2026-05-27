@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"analytics-service/cluster/file"
 	"analytics-service/config"
 	"context"
 	"errors"
@@ -93,7 +94,7 @@ func (s *Service) dailyReportTask(ctx context.Context, log golog.Logger) {
 
 	now := time.Now()
 
-	report, err := s.analyticsService.CreateBasicReport(wrappedCtx, log, now, now.AddDate(0, 0, 1))
+	report, err := s.analyticsService.CreateBasicReport(wrappedCtx, log, now, now.AddDate(0, 0, 1), file.ForwardedHeaders{})
 	if err != nil {
 		log.Errorf("failed to create daily basic report: %v", err)
 		return

@@ -42,7 +42,7 @@ func NewService(repository Repository, inspectionService InspectionService, brig
 	}
 }
 
-func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodStart, periodEnd time.Time) (Report, error) {
+func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodStart, periodEnd time.Time, headers file.ForwardedHeaders) (Report, error) {
 	periodStart = time.Date(periodStart.Year(), periodStart.Month(), periodStart.Day(), 0, 0, 0, 0, gotime.Moscow)
 	periodEnd = time.Date(periodEnd.Year(), periodEnd.Month(), periodEnd.Day(), 0, 0, 0, 0, gotime.Moscow)
 
@@ -134,7 +134,7 @@ func (s *Service) CreateBasicReport(ctx goctx.Context, log golog.Logger, periodS
 
 	fileName := fmt.Sprintf("Отчет за %s-%s.xlsx", periodStart.Format(gotime.DateOnlyNet), periodEnd.Format(gotime.DateOnlyNet))
 
-	uploadedFile, err := s.fileService.Upload(ctx, fileName, buf)
+	uploadedFile, err := s.fileService.Upload(ctx, fileName, buf, headers)
 	if err != nil {
 		return Report{}, fmt.Errorf("upload file: %w", err)
 	}
@@ -164,7 +164,7 @@ func fullFIO(surname, name, patronymic string) string {
 	return result
 }
 
-func (s *Service) GetAllReports(ctx goctx.Context, page pagination.Pagination) ([]Report, error) {
+func (s *Service) GetAllReports(ctx goctx.Context, page pagination.Pagination, headers file.ForwardedHeaders) ([]Report, error) {
 	if err := page.Validate(); err != nil {
 		return nil, fmt.Errorf("validate pagination: %w", err)
 	}
@@ -181,7 +181,7 @@ func (s *Service) GetAllReports(ctx goctx.Context, page pagination.Pagination) (
 		}
 	}
 
-	files, err := s.fileService.GetFilesByIDs(ctx, fileIDs)
+	files, err := s.fileService.GetFilesByIDs(ctx, fileIDs, headers)
 	if err != nil {
 		return nil, fmt.Errorf("get files by ids: %w", err)
 	}

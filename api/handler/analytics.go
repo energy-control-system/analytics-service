@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"analytics-service/cluster/file"
 	"analytics-service/service/analytics"
 	"fmt"
 	"net/http"
@@ -43,7 +44,7 @@ func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 			return fmt.Errorf("failed to parse periodEnd: %w", err)
 		}
 
-		response, err := s.CreateBasicReport(c.Ctx(), c.Log().WithTags("basicReport"), periodStart, periodEnd)
+		response, err := s.CreateBasicReport(c.Ctx(), c.Log().WithTags("basicReport"), periodStart, periodEnd, file.NewForwardedHeaders(c.Request()))
 		if err != nil {
 			return fmt.Errorf("failed to create report: %w", err)
 		}
@@ -70,7 +71,7 @@ func GetAllReports(s *analytics.Service) gorouter.Handler {
 			return fmt.Errorf("failed to read pagination: %w", err)
 		}
 
-		response, err := s.GetAllReports(c.Ctx(), vars)
+		response, err := s.GetAllReports(c.Ctx(), vars, file.NewForwardedHeaders(c.Request()))
 		if err != nil {
 			return fmt.Errorf("failed to get reports: %w", err)
 		}
