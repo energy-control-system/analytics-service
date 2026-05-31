@@ -16,6 +16,10 @@ import (
 // @version 1.0
 // @description API for generating and listing analytics reports.
 // @BasePath /api/analytics-service
+// @securityDefinitions.apikey bearer
+// @in header
+// @name Authorization
+// @description JWT authorization header. Use Bearer <token>.
 func main() {
 	configureDecimal()
 
