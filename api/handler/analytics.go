@@ -26,7 +26,6 @@ type periodVars struct {
 // @Success 200 {object} analytics.Report
 // @Failure 400 {object} gorouter.ErrorResponse
 // @Failure 500 {object} gorouter.ErrorResponse
-// @Security bearer
 // @Router /reports/basic/{periodStart}/{periodEnd} [post]
 func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 	return func(c gorouter.Context) error {
@@ -64,7 +63,6 @@ func CreateBasicReport(s *analytics.Service) gorouter.Handler {
 // @Success 200 {array} analytics.Report
 // @Failure 400 {object} gorouter.ErrorResponse
 // @Failure 500 {object} gorouter.ErrorResponse
-// @Security bearer
 // @Router /reports [get]
 func GetAllReports(s *analytics.Service) gorouter.Handler {
 	return func(c gorouter.Context) error {

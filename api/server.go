@@ -10,7 +10,6 @@ import (
 	"github.com/sunshineOfficial/golib/gohttp/gorouter"
 	"github.com/sunshineOfficial/golib/gohttp/gorouter/middleware"
 	"github.com/sunshineOfficial/golib/gohttp/gorouter/plugin"
-	"github.com/sunshineOfficial/golib/gohttp/gorouter/status"
 	"github.com/sunshineOfficial/golib/gohttp/goserver"
 	"github.com/sunshineOfficial/golib/golog"
 )
@@ -18,7 +17,6 @@ import (
 type ServerBuilder struct {
 	server goserver.Server
 	router *gorouter.Router
-	auth   gorouter.Middleware
 }
 
 func NewServerBuilder(ctx context.Context, log golog.Logger, settings config.Settings) *ServerBuilder {
@@ -29,7 +27,6 @@ func NewServerBuilder(ctx context.Context, log golog.Logger, settings config.Set
 			middleware.Recover,
 			middleware.LogError,
 		),
-		auth: middleware.IsAnyAuthorized(status.UnauthorizedHandler),
 	}
 }
 
@@ -39,8 +36,8 @@ func (s *ServerBuilder) AddDebug() {
 
 func (s *ServerBuilder) AddReports(service *analytics.Service) {
 	r := s.router.SubRouter("/reports")
-	r.HandlePost("/basic/{periodStart}/{periodEnd}", handler.CreateBasicReport(service)).Use(s.auth)
-	r.HandleGet("", handler.GetAllReports(service)).Use(s.auth)
+	r.HandlePost("/basic/{periodStart}/{periodEnd}", handler.CreateBasicReport(service))
+	r.HandleGet("", handler.GetAllReports(service))
 }
 
 func (s *ServerBuilder) Build() goserver.Server {

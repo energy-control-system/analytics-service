@@ -59,12 +59,6 @@ components:
         error:
           $ref: '#/components/schemas/gorouter.ErrorInfo'
       type: object
-  securitySchemes:
-    bearer:
-      description: JWT authorization header. Use Bearer <token>.
-      in: header
-      name: Authorization
-      type: apiKey
 externalDocs:
   description: ""
   url: ""
@@ -109,8 +103,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/gorouter.ErrorResponse'
           description: Internal Server Error
-      security:
-      - bearer: []
       summary: List reports
       tags:
       - reports
@@ -149,8 +141,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/gorouter.ErrorResponse'
           description: Internal Server Error
-      security:
-      - bearer: []
       summary: Create basic report
       tags:
       - reports
